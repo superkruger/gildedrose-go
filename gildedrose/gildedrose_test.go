@@ -1,19 +1,96 @@
 package gildedrose_test
 
 import (
+	"github.com/pascaldekloe/goe/verify"
 	"testing"
 
 	"github.com/emilybache/gildedrose-refactoring-kata/gildedrose"
 )
 
-func Test_Foo(t *testing.T) {
-	var items = []*gildedrose.Item{
-		{"foo", 0, 0},
+func TestUpdateQuality(t *testing.T) {
+	tests := map[string]struct {
+		given []*gildedrose.Item
+		want  []*gildedrose.Item
+	}{
+		"-1 days": {
+			given: []*gildedrose.Item{
+				{Name: "Aged Brie", SellIn: -1, Quality: 10},
+				{Name: "Aged Brie", SellIn: -1, Quality: 50},
+				{Name: "Sulfuras, Hand of Ragnaros", SellIn: -1, Quality: 10},
+				{Name: "Backstage passes to a TAFKAL80ETC concert", SellIn: -1, Quality: 10},
+			},
+			want: []*gildedrose.Item{
+				{Name: "Aged Brie", SellIn: -2, Quality: 12},
+				{Name: "Aged Brie", SellIn: -2, Quality: 50},
+				{Name: "Sulfuras, Hand of Ragnaros", SellIn: -1, Quality: 10},
+				{Name: "Backstage passes to a TAFKAL80ETC concert", SellIn: -2, Quality: 0},
+			},
+		},
+		"0 days": {
+			given: []*gildedrose.Item{
+				{Name: "Aged Brie", SellIn: 0, Quality: 10},
+				{Name: "Sulfuras, Hand of Ragnaros", SellIn: 0, Quality: 10},
+				{Name: "Backstage passes to a TAFKAL80ETC concert", SellIn: 0, Quality: 10},
+			},
+			want: []*gildedrose.Item{
+				{Name: "Aged Brie", SellIn: -1, Quality: 12},
+				{Name: "Sulfuras, Hand of Ragnaros", SellIn: 0, Quality: 10},
+				{Name: "Backstage passes to a TAFKAL80ETC concert", SellIn: -1, Quality: 0},
+			},
+		},
+		"1 day": {
+			given: []*gildedrose.Item{
+				{Name: "Aged Brie", SellIn: 1, Quality: 10},
+				{Name: "Sulfuras, Hand of Ragnaros", SellIn: 1, Quality: 10},
+				{Name: "Backstage passes to a TAFKAL80ETC concert", SellIn: 1, Quality: 10},
+			},
+			want: []*gildedrose.Item{
+				{Name: "Aged Brie", SellIn: 0, Quality: 11},
+				{Name: "Sulfuras, Hand of Ragnaros", SellIn: 1, Quality: 10},
+				{Name: "Backstage passes to a TAFKAL80ETC concert", SellIn: 0, Quality: 13},
+			},
+		},
+		"2 days": {
+			given: []*gildedrose.Item{
+				{Name: "Aged Brie", SellIn: 2, Quality: 10},
+				{Name: "Sulfuras, Hand of Ragnaros", SellIn: 2, Quality: 10},
+				{Name: "Backstage passes to a TAFKAL80ETC concert", SellIn: 2, Quality: 10},
+			},
+			want: []*gildedrose.Item{
+				{Name: "Aged Brie", SellIn: 1, Quality: 11},
+				{Name: "Sulfuras, Hand of Ragnaros", SellIn: 2, Quality: 10},
+				{Name: "Backstage passes to a TAFKAL80ETC concert", SellIn: 1, Quality: 13},
+			},
+		},
+		"6 days": {
+			given: []*gildedrose.Item{
+				{Name: "Aged Brie", SellIn: 6, Quality: 10},
+				{Name: "Sulfuras, Hand of Ragnaros", SellIn: 6, Quality: 10},
+				{Name: "Backstage passes to a TAFKAL80ETC concert", SellIn: 6, Quality: 10},
+			},
+			want: []*gildedrose.Item{
+				{Name: "Aged Brie", SellIn: 5, Quality: 11},
+				{Name: "Sulfuras, Hand of Ragnaros", SellIn: 6, Quality: 10},
+				{Name: "Backstage passes to a TAFKAL80ETC concert", SellIn: 5, Quality: 12},
+			},
+		},
+		"11 days": {
+			given: []*gildedrose.Item{
+				{Name: "Aged Brie", SellIn: 11, Quality: 10},
+				{Name: "Sulfuras, Hand of Ragnaros", SellIn: 11, Quality: 10},
+				{Name: "Backstage passes to a TAFKAL80ETC concert", SellIn: 11, Quality: 10},
+			},
+			want: []*gildedrose.Item{
+				{Name: "Aged Brie", SellIn: 10, Quality: 11},
+				{Name: "Sulfuras, Hand of Ragnaros", SellIn: 11, Quality: 10},
+				{Name: "Backstage passes to a TAFKAL80ETC concert", SellIn: 10, Quality: 11},
+			},
+		},
 	}
-
-	gildedrose.UpdateQuality(items)
-
-	if items[0].Name != "fixme" {
-		t.Errorf("Name: Expected %s but got %s ", "fixme", items[0].Name)
+	for name, testCase := range tests {
+		t.Run(name, func(t *testing.T) {
+			gildedrose.UpdateQuality(testCase.given)
+			verify.Values(t, name, testCase.given, testCase.want)
+		})
 	}
 }
