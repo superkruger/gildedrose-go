@@ -22,13 +22,18 @@ type sulfurasItem struct {
 	SellIn, Quality int
 }
 
+type defaultItem struct {
+	Name            string
+	SellIn, Quality int
+}
+
 const (
 	agedBrie      = "Aged Brie"
 	sulfuras      = "Sulfuras"
 	backstagePass = "Backstage passes"
 )
 
-func UpdateQualityOld(items []*Item) {
+func UpdateQualityOriginal(items []*Item) {
 	for i := 0; i < len(items); i++ {
 
 		if items[i].Name != "Aged Brie" && items[i].Name != "Backstage passes to a TAFKAL80ETC concert" {
@@ -93,6 +98,13 @@ func UpdateQuality(items []*Item) {
 			(*backstagePassItem)(items[i]).update()
 			continue
 		}
+		(*defaultItem)(items[i]).update()
+	}
+}
+
+func (i *Item) update() {
+	if i.Quality < 0 {
+		i.Quality = 0
 	}
 }
 
@@ -105,10 +117,11 @@ func (i *agedBrieItem) update() {
 		i.Quality = 50
 	}
 	i.SellIn -= 1
+	(*Item)(i).update()
 }
 
 func (i *sulfurasItem) update() {
-
+	(*Item)(i).update()
 }
 
 func (i *backstagePassItem) update() {
@@ -126,4 +139,17 @@ func (i *backstagePassItem) update() {
 		i.Quality = 50
 	}
 	i.SellIn -= 1
+	(*Item)(i).update()
+}
+
+func (i *defaultItem) update() {
+	i.Quality -= 1
+	if i.SellIn <= 0 {
+		i.Quality -= 1
+	}
+	if i.Quality > 50 {
+		i.Quality = 50
+	}
+	i.SellIn -= 1
+	(*Item)(i).update()
 }
