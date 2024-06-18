@@ -1,11 +1,34 @@
 package gildedrose
 
+import "strings"
+
 type Item struct {
 	Name            string
 	SellIn, Quality int
 }
 
-func UpdateQuality(items []*Item) {
+type agedBrieItem struct {
+	Name            string
+	SellIn, Quality int
+}
+
+type backstagePassItem struct {
+	Name            string
+	SellIn, Quality int
+}
+
+type sulfurasItem struct {
+	Name            string
+	SellIn, Quality int
+}
+
+const (
+	agedBrie      = "Aged Brie"
+	sulfuras      = "Sulfuras"
+	backstagePass = "Backstage passes"
+)
+
+func UpdateQualityOld(items []*Item) {
 	for i := 0; i < len(items); i++ {
 
 		if items[i].Name != "Aged Brie" && items[i].Name != "Backstage passes to a TAFKAL80ETC concert" {
@@ -54,5 +77,53 @@ func UpdateQuality(items []*Item) {
 			}
 		}
 	}
+}
 
+func UpdateQuality(items []*Item) {
+	for i := 0; i < len(items); i++ {
+		if strings.Contains(items[i].Name, agedBrie) {
+			(*agedBrieItem)(items[i]).update()
+			continue
+		}
+		if strings.Contains(items[i].Name, sulfuras) {
+			(*sulfurasItem)(items[i]).update()
+			continue
+		}
+		if strings.Contains(items[i].Name, backstagePass) {
+			(*backstagePassItem)(items[i]).update()
+			continue
+		}
+	}
+}
+
+func (i *agedBrieItem) update() {
+	i.Quality += 1
+	if i.SellIn <= 0 {
+		i.Quality += 1
+	}
+	if i.Quality > 50 {
+		i.Quality = 50
+	}
+	i.SellIn -= 1
+}
+
+func (i *sulfurasItem) update() {
+
+}
+
+func (i *backstagePassItem) update() {
+	i.Quality += 1
+	if i.SellIn <= 0 {
+		i.Quality = 0
+	}
+	if i.SellIn < 11 && i.SellIn > 0 {
+		i.Quality += 1
+	}
+	if i.SellIn < 6 && i.SellIn > 0 {
+		i.Quality += 1
+	}
+	if i.Quality > 50 {
+		i.Quality = 50
+	}
+	i.SellIn -= 1
 }
