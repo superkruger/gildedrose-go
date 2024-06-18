@@ -22,6 +22,11 @@ type sulfurasItem struct {
 	SellIn, Quality int
 }
 
+type conjuredItem struct {
+	Name            string
+	SellIn, Quality int
+}
+
 type defaultItem struct {
 	Name            string
 	SellIn, Quality int
@@ -31,6 +36,7 @@ const (
 	agedBrie      = "Aged Brie"
 	sulfuras      = "Sulfuras"
 	backstagePass = "Backstage passes"
+	conjured      = "Conjured"
 )
 
 func UpdateQualityOriginal(items []*Item) {
@@ -98,6 +104,10 @@ func UpdateQuality(items []*Item) {
 			(*backstagePassItem)(items[i]).update()
 			continue
 		}
+		if strings.Contains(items[i].Name, conjured) {
+			(*conjuredItem)(items[i]).update()
+			continue
+		}
 		(*defaultItem)(items[i]).update()
 	}
 }
@@ -134,6 +144,18 @@ func (i *backstagePassItem) update() {
 	}
 	if i.SellIn < 6 && i.SellIn > 0 {
 		i.Quality += 1
+	}
+	if i.Quality > 50 {
+		i.Quality = 50
+	}
+	i.SellIn -= 1
+	(*Item)(i).update()
+}
+
+func (i *conjuredItem) update() {
+	i.Quality -= 2
+	if i.SellIn <= 0 {
+		i.Quality -= 2
 	}
 	if i.Quality > 50 {
 		i.Quality = 50
